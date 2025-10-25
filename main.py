@@ -147,4 +147,17 @@ class WeatherPlugin:
             update_time = weather_data.get('更新时间', '未知')
             detail_location = weather_data.get('详细地名', '')
             
-            message = f"🌤️ {city}
+             message = f"🌤️ {city}天气信息\n"
+            message += f"📍 位置: {detail_location}\n" if detail_location else ""
+            message += f"🌡️ 气温: {temperature}\n"
+            message += f"☁️ 天气: {weather}\n"
+            message += f"🕒 更新: {update_time}"
+            
+            return message
+            
+        except Exception:
+            # 构建消息过程中出现异常，返回简单提示
+            return f"{city_name}的天气信息获取成功，但格式解析异常。"
+
+# 需要导入 asyncio 用于超时处理
+import asyncio
