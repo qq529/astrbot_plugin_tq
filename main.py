@@ -1,9 +1,6 @@
 import astrbot
-from astrbot import CommandSession
-import aiohttp
-import asyncio
-from typing import Dict, Optional
-
+# 移除错误的导入，使用正确的导入方式
+# from astrbot import CommandSession  # 这行会报错
 
 # 注册插件
 @astrbot.plugin_registry.register(
@@ -13,11 +10,6 @@ from typing import Dict, Optional
     author="YourName"
 )
 class WeatherPlugin:
-    """天气查询插件
-    
-    提供城市天气查询功能，使用异步aiohttp进行网络请求
-    符合AstrBot插件开发规范
-    """
     
     def __init__(self):
         # API接口地址
@@ -34,25 +26,19 @@ class WeatherPlugin:
         }
     
     @astrbot.event_listener.on_command(cmd="天气", alias={"tq", "weather"})
-    async def weather_query(self, session: CommandSession):
+    async def weather_query(self, session):
         """天气查询命令处理函数
         
         Args:
-            session: 命令会话对象
+            session: 命令会话对象（AstrBot自动传入）
         """
-        # 获取用户输入的城市名
-        city_name = session.get_param("city_name")
+        # 获取用户输入的城市名 - 使用AstrBot提供的方法
+        city_name = session.msg.text.strip().replace('天气', '').replace('tq', '').replace('weather', '').strip()
         
         # 如果未提供城市名，提示用户输入
         if not city_name:
             await session.send("请问您要查询哪个城市的天气呢？")
-            city_name = await session.aget(
-                param_name="city_name", 
-                prompt="请直接告诉我城市名："
-            )
-            if not city_name:
-                await session.send("未收到城市名，查询已取消。")
-                return
+            return
         
         try:
             # 获取天气数据
@@ -72,19 +58,15 @@ class WeatherPlugin:
                 
         except Exception as e:
             # 良好的错误处理，防止插件崩溃
-            await session.send(f"天气查询过程中出现异常，请稍后重试。错误信息: {str(e)}")
+            await session.send(f"天气查询过程中出现异常，请稍后重试。")
     
-    async def _get_weather_async(self, city_name: str) -> Dict:
+    async def _get_weather_async(self, city_name: str):
         """异步获取天气数据
         
         使用aiohttp替代requests，符合AstrBot开发规范
-        
-        Args:
-            city_name: 城市名称
-            
-        Returns:
-            包含天气数据的字典
         """
+        import aiohttp
+        
         params = {"msg": city_name}
         
         try:
@@ -129,15 +111,8 @@ class WeatherPlugin:
                 "status_code": None
             }
     
-    def _parse_weather_data(self, raw_data: str) -> Optional[Dict]:
-        """解析天气数据
-        
-        Args:
-            raw_data: 原始返回数据
-            
-        Returns:
-            解析后的天气信息字典，解析失败返回None
-        """
+    def _parse_weather_data(self, raw_data: str):
+        """解析天气数据"""
         try:
             lines = raw_data.strip().split('\n')
             weather_info = {}
@@ -163,16 +138,8 @@ class WeatherPlugin:
             # 解析过程中出现异常，返回None
             return None
     
-    def _build_weather_message(self, city_name: str, weather_data: Dict) -> str:
-        """构建天气消息
-        
-        Args:
-            city_name: 城市名称
-            weather_data: 天气数据字典
-            
-        Returns:
-            格式化的天气消息字符串
-        """
+    def _build_weather_message(self, city_name: str, weather_data: dict) -> str:
+        """构建天气消息"""
         try:
             city = weather_data.get('城市名', city_name)
             weather = weather_data.get('实时天气', '未知')
@@ -180,14 +147,4 @@ class WeatherPlugin:
             update_time = weather_data.get('更新时间', '未知')
             detail_location = weather_data.get('详细地名', '')
             
-            message = f"🌤️ {city}天气信息\n"
-            message += f"📍 位置: {detail_location}\n" if detail_location else ""
-            message += f"🌡️ 气温: {temperature}\n"
-            message += f"☁️ 天气: {weather}\n"
-            message += f"🕒 更新: {update_time}"
-            
-            return message
-            
-        except Exception:
-            # 构建消息过程中出现异常，返回简单提示
-            return f"{city_name}的天气信息获取成功，但格式解析异常。"
+            message = f"🌤️ {city}
