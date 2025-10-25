@@ -1,9 +1,28 @@
-# helloworld
+# AstrBot 天气查询插件
 
-AstrBot 插件模板
+这是一个用于AstrBot的天气查询插件，可以根据城市名称查询实时天气信息。
 
-A template plugin for AstrBot plugin feature
+## 功能特点
 
-# 支持
+- 支持多种命令格式：`天气`、`tq`、`weather`
+- 使用异步请求，响应迅速
+- 友好的错误提示
 
-[帮助文档](https://astrbot.app)
+## 安装方法
+
+1. 将本插件复制到AstrBot的插件目录中。
+2. 确保已安装依赖：`aiohttp`
+3. 重启AstrBot
+
+## 使用方法
+
+在聊天中发送以下命令之一：
+
+- `天气 北京`：查询北京的天气
+- `tq 上海`：查询上海的天气
+- `weather 广州`：查询广州的天气
+
+## 更新日志
+
+### v1.0.0
+- 初始版本发布
